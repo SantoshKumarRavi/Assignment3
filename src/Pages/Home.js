@@ -10,9 +10,9 @@ const Home = () => {
 	const [searchText, setSearchText] = useState('The Avenger');
 	useEffect(() => {
 		const fetchMovie = async () => {
-			try { 
+			try {
 				const response = await fetch(
-					`https://www.omdbapi.com/?t=${searchText}&apikey=${process.env.REACT_APP_API_KEY}`
+					`https://www.omdbapi.com/?t=${searchText.toLowerCase()}&apikey=${process.env.REACT_APP_API_KEY}`
 				);
 				const data = await response.json();
 				setMovie(data);
