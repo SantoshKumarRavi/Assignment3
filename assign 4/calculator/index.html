@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <form id="form" method="post">
+        <!-- <input autocomplete="off" id="display" type="text" value=""> -->
+        <input type="text" autocomplete numbers="num" placeholder="num1" name="num1" />
+        <input type="text" autocomplete numbers="num" placeholder="num2" name="num2" />
+        <input name="operation" type="radio" id="add" value="+" /><label for="add">ADD</label>
+        <input name="operation" type="radio" id="sub" value="-" /> <label for="sub">SUB</label>
+        <input name="operation" type="radio" id="mul" value="*" /> <label for="mul">MUL</label>
+        <input name="operation" type="radio" id="div" value="/" /> <label for="div">DIV</label>
+        <input type="submit" value="SUBMIT" />
+    </form>
+    <p id="alert"></p>
+    <p id="display-message"></p>
+    <p id="display-result"></p>
+</body>
+<script>
+    function callthis(e) {
+        e.stopImmediatePropagation();
+        console.log("it is submited")
+    }
+    const a = document.querySelectorAll("input[numbers]")
+    // a.forEach(item => {
+    //     item.addEventListener('input', event => {
+    //         let displayValue = document.getElementById("display").value
+    //         let operandArray = ["+", "-", "/", "*"]
+    //         let currentOpe = ""
+    //         for (let i = 0; i < operandArray.length; i++) {
+    //             if (displayValue.includes(operandArray[i]))
+    //                 currentOpe = operandArray[i]
+    //             break;
+    //         }
+    //         let displayText = displayValue.split(/[-,+,/,*]+/)
+    //         if (item.name == "num1") {
+    //             displayText[0] = event.target.value + currentOpe
+    //             document.getElementById("alert").innerText = ""
+    //         } else {
+    //             if (displayText.length == 1) {
+    //                 document.getElementById("alert").innerText = "please provide operation"
+    //                 return
+    //             }
+    //             // console.log("curent ",currentOpe)
+    //             displayText[1] = currentOpe + event.target.value
+    //         }
+    //         displayText = displayText.join("")
+    //         document.getElementById("display").value = displayText
+    //     })
+    // }
+    // )
+    // const b = document.querySelectorAll("input[name=operation]")
+    // b.forEach(item => {
+    //     item.addEventListener("click", e => {
+    //         let value = document.getElementById("display").value
+    //         const regex = new RegExp(/[-,+,*,/]/);
+    //         if (regex.test(value)) {
+    //             value = value.split(/[-,+,/,*]+/)
+    //             value.splice(1, 0, e.target.value)
+    //             value = value.join("")
+    //             document.getElementById("display").value = value
+    //         } else {
+    //             document.getElementById("display").value += e.target.value
+    //         }
+
+    //     })
+
+    // })
+    const c = document.getElementById("form")
+    c.addEventListener("submit", (e) => {        
+        e.preventDefault()
+        var getSelectedValue = document.querySelector('input[name="operation"]:checked');
+       if(getSelectedValue.value=="+"){
+        e.target.action = "http://localhost:3000/add";
+       }else if(getSelectedValue.value=="-"){
+        e.target.action = "http://localhost:3000/sub";
+       }else if(getSelectedValue.value=="*"){
+        e.target.action = "http://localhost:3000/multiply";
+       }else if(getSelectedValue.value=="/"){
+        e.target.action = "http://localhost:3000/divide";
+       }
+
+       
+        async function postData() {
+            // console.log("check here")
+            // console.log(new FormData(event.target))
+            const data = await fetch(event.target.action, {
+                method: 'POST',
+                body: new URLSearchParams(new FormData(event.target)) // event.target is the form
+            }).then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json()
+            }).then((result) => {
+                console.log(result.status)
+                console.log(result.message)
+                console.log(result.sum)
+                document.getElementById("display-result").innerText = result.status
+                document.getElementById("display-message").innerText = result.message
+                document.getElementById("alert").innerText = result.sum
+                // TODO handle body
+                // let dotJson=body
+                // let stringify=body
+                // let parse=body
+                // console.log("b ",dotJson.json())
+                // console.log("stringy",JSON.stringify(stringify))
+                // console.log("parse",JSON.parse(parse))
+                // console.log(body.status)
+            }).catch((error) => {
+                console.log("error happened during sending.. Try again")
+            });
+        }
+        postData()
+
+
+
+
+
+
+    })
+
+
+// console.log(b)
+
+
+</script>
+
+</html>
