@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLOG API data</title>
+    <link rel="stylesheet"  type="text/css" href="/styles.css">
+</head>
+<body>
+    <form id="myForm">
+        <input autocomplete="off" required type="text" placeholder="Enter topic Here" name="topic"/>
+        <input required type="text"  autocomplete="off" placeholder="Enter description Here" name="description"/>
+        <input required type="text" placeholder="Enter posted at"  autocomplete="off" name="posted_at"/>
+        <input required type="text" placeholder="Enter postedBy" name="posted_by"  autocomplete="off"/>
+        <input type="submit"/>
+        <p id="displayMessage"></p>
+    </form>
+        <p>If u want to Update only use this or else ignore this</p>
+        <input  autocomplete="off" type="text" placeholder="Enter id of blog to update" id="blog_id" name="blog_id"/>
+        <button required type="submit" id="update">Update</button>
+        <p id="updateMessage"></p>
+        <p>For deleting the blog </p>
+        <button required type="submit" id="delete">Delete</button>
+        <p id="deleteMessage"></p>
+        <p>For searching the blog </p>
+        <input  autocomplete="off" type="text" placeholder="Enter topic of blog to search" id="search_text" name="search"/>
+        <input  autocomplete="off" type="text" placeholder="Enter page Number of blog to search" id="page" name="page"/>
+        <button type="submit" id="search_btn">Search</button>
+        <div id="display_searched"></div>
+</body>
+<script>
+function clearValues(){
+    let values=document.querySelectorAll("input[type=text]")
+    // console.log(values[0])
+    values.forEach(function(ele){
+        ele.value=""
+        // console.log(ele)
+    })
+}
+document.getElementById("myForm").addEventListener("submit", newBlogCreation);
+function newBlogCreation(e) {
+    // console.log("submitted",new URLSearchParams(new FormData(e.target)) )
+        async function postToserver() {
+            // console.log("update ",e.target)
+            const data = await fetch("http://localhost:3000/blog",{
+                method: 'post',
+                body:new URLSearchParams(new FormData(e.target)) // e.target is the form
+            }).then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json()
+            }).then((result) => {
+                // console.log("res",result.status)
+                document.getElementById("displayMessage").innerText=result.status
+                clearValues()
+            }).catch((error) => {
+                console.log("error happened during sending and receiving.. Try again")
+            });
+        }
+        postToserver()
+    e.preventDefault();
+}
+
+document.getElementById("search_btn").addEventListener("click", searchBlog);
+function searchBlog(e) {
+    // console.log("submitted",new URLSearchParams(new FormData(e.target)) )
+        async function searchInServer() {
+            // console.log("update ",e.target)
+            let searchText=document.getElementById("search_text").value
+            let pageNumber=document.getElementById("page").value
+
+            const data = await fetch(`http://localhost:3000/blog?page=${pageNumber}&search=${searchText}`,{
+                method: 'get',
+                // body:new URLSearchParams(new FormData(e.target)) // e.target is the form
+            }).then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json()
+            }).then((result) => {
+                // console.log("res searched ",result.data)
+                // document.getElementById("display_searched").innerText=result.data.join(" and next")
+                var items =result.data;
+                var target = document.getElementById("display_searched");
+                // console.log("before ",document.getElementById("display_searched").innerHTML)
+                document.getElementById("display_searched").innerHTML=`<p></p>`
+                // console.log("after ",document.getElementById("display_searched").innerHTML)
+                // var template = "<div><label class=\"bo bp\"><input type=\"checkbox\" name=\"addees[~id~]\" value=\"~id~\">Test ~id~</label></div>";
+                if(items.length==0){
+                    target.insertAdjacentHTML("beforeend", `<p>No topics or No data found at this page number <p>`);      
+                }else{
+                items.forEach(function(item) {
+                target.insertAdjacentHTML("beforeend", `<p> Topic : ${item.topic} <br/> Description : ${item.description} <br/> posted_at=${item.posted_at} <br/> posted_by=${item.posted_by}<p>`);
+                });
+                }
+               
+                clearValues()
+            }).catch((error) => {
+                console.log("error happened during sending and receiving.. Try again")
+            });
+        }
+        searchInServer()
+}
+
+document.getElementById("update").addEventListener("click", updateBlog);
+
+function updateBlog(e){
+    // console.log("updated")
+    async function updateToserver() {
+        let id=document.getElementById("blog_id").value
+        let formData=document.getElementById("myForm")
+        // console.log(formData)
+            const data = await fetch(`http://localhost:3000/blog/${id}`,{
+                method: 'put',
+                body:new URLSearchParams(new FormData(formData)) //formData is the form
+            }).then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json()
+            }).then((result) => {
+                // console.log("res",result.status)
+                document.getElementById("displayMessage").innerText=result.status
+                clearValues()
+            }).catch((error) => {
+                console.log("error happened during sending and receiving.. Try again")
+            });
+        }
+        updateToserver()
+
+}
+
+document.getElementById("delete").addEventListener("click", deleteBlog);
+// console.log("delete clicked")
+function deleteBlog(e){
+    // console.log("updated")
+    async function deleteFromDb() {
+        let id=document.getElementById("blog_id").value
+        // let formData=document.getElementById("myForm")
+        // console.log(formData)
+            const data = await fetch(`http://localhost:3000/blog/${id}`,{
+                method: 'delete',
+                // body:new URLSearchParams(new FormData(formData)) //formData is the form
+            }).then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json()
+            }).then((result) => {
+                // console.log("res",result.status)
+                document.getElementById("displayMessage").innerText=result.status
+                clearValues()
+            }).catch((error) => {
+                console.log("error happened during sending and receiving.. Try again")
+            });
+        }
+        deleteFromDb()
+
+}
+
+</script>
+</html>
