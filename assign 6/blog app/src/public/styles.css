@@ -1,0 +1,7 @@
+input{
+    display: block;
+    margin-bottom: 5px;
+}
+#displayMessage{
+    color: rgb(0, 255, 8);
+}
